@@ -24,6 +24,7 @@ time.sleep(5)
 
 # Getting the total number of characters published, just in case we need it later
 # spoiler: it seems to be not necessary
+# Another spoiler: not usefull at all, the list changes literally every second
 try:
     total_characters = WebDriverWait(driver,10).until(
         EC.presence_of_element_located((By.XPATH, '//span[@class="list-bar__total nft"]'))
@@ -36,7 +37,7 @@ except:
 # Rendering all the elements to scrape by clicking "view more" button
 while True:
     try:
-        view_more = WebDriverWait(driver,20).until(
+        view_more = WebDriverWait(driver,30).until(
             EC.presence_of_element_located((By.XPATH, '//button[@class="btn-viewmore"]'))
         )
         view_more.click()
@@ -60,8 +61,10 @@ rate = []
 #
 for character in characters:
     try:
-        char_class.append(character.find_element(
-            By.XPATH, './a/div/div/div/span').text)
+        class_string = character.find_element(
+            By.XPATH, './a/div/div/div/span').text
+
+        char_class.append(class_string)
 
         level.append(character.find_element(
             By.XPATH, './a/div/div/div/dl/dd').text)
@@ -71,11 +74,14 @@ for character in characters:
 
         rate.append(int(character.find_element(
             By.XPATH, './div/button/em/strong').text.replace(',', '')))
+
+        print(f'Character scraped: {class_string}')
+
     except:
         print('character attribute not found')
         pass
 
-time.sleep(10)
+time.sleep(20)
 
 df = pd.DataFrame({'class':char_class, 'level':level, 'power':power_score, 'price':rate})
 df.to_csv('nft_list.csv', index=False)
